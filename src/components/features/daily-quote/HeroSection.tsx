@@ -33,6 +33,9 @@ export const HeroSection = () => {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  // 新增：专门用于解决日期渲染不一致的 State
+  const [dateStr, setDateStr] = useState('');
+
   // --- 辅助函数：将 WMO 天气代码转为中文 ---
   const getWeatherDesc = (code: number): string => {
     // 简单映射 Open-Meteo 的 WMO code
@@ -95,6 +98,9 @@ export const HeroSection = () => {
 
   // --- 生命周期 ---
   useEffect(() => {
+    // 仅在客户端执行时设置日期
+    setDateStr(new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'short' }));
+    
     fetchQuote();
     fetchWeather();
   }, []);
@@ -155,7 +161,7 @@ export const HeroSection = () => {
 
         {/* 日期 */}
         <span>
-          {new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'short' })}
+          {dateStr || "Loading..."} 
         </span>
       </div>
 
