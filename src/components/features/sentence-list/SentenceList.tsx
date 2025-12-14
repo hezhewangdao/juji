@@ -50,6 +50,8 @@ export const SentenceList = () => {
               src="/images/default_avatar.png" 
               alt="用户头像" 
               className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover"
+              width={512}
+              height={512}
             />
             <div>
               <h3 className="font-medium">{sentence.author}</h3>
@@ -86,6 +88,8 @@ export const SentenceList = () => {
               src="/images/default_book.png" 
               alt="相关书籍" 
               className="w-full aspect-[2/3] object-cover rounded"
+              width={600}
+              height={900}
             />
           </div>
         </div>
