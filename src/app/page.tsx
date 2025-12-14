@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Hero } from '@/components/features/daily-quote/Hero';
 import { SentenceList } from '@/components/features/sentence-list/SentenceList';
-import { PosterThemes } from '@/components/features/share/PosterThemes';
 import { poetryService } from '@/data/poetry/poetryService';
 import type { Sentence } from '@/types';
 
@@ -36,9 +35,9 @@ export default function HomePage() {
   }, [searchTerm, sentences]);
 
   return (
-    <main className="min-h-screen bg-paper pb-20 md:pb-0">
+    <main className="min-h-screen bg-white">
       {/* 搜索框 */}
-      <div className="px-4 md:container md:mx-auto py-4">
+      <div className="px-4 md:container md:mx-auto py-6">
         <div className="max-w-2xl mx-auto">
           <input
             type="text"
@@ -50,27 +49,14 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 
-        Hero区域：
-        - 移动端：h-screen (全屏沉浸)
-        - PC端：min-h-[600px] (高度适中，留出下方内容)
-      */}
-      <section className="h-[80vh] md:min-h-[600px] md:h-auto w-full">
+      {/* Hero区域 */}
+      <section className="w-full">
         <Hero />
       </section>
       
-      {/* 分享海报主题背景 */}
-      <div className="px-4 md:container md:mx-auto py-8">
-        <PosterThemes />
-      </div>
-      
-      {/* 
-        内容区域：
-        - 移动端：px-4 (小边距)
-        - PC端：container mx-auto (居中且有最大宽度)
-      */}
-      <div className="px-4 md:container md:mx-auto py-8 md:py-16">
-        <h2 className="text-2xl font-bold mb-6 text-center">
+      {/* 内容区域 */}
+      <div className="px-4 md:container md:mx-auto py-12">
+        <h2 className="text-2xl font-bold mb-8 text-center">
           {searchTerm ? `搜索"${searchTerm}"的结果` : '精选名句'}
         </h2>
         <SentenceList />
