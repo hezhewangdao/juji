@@ -12,6 +12,7 @@
 - [开发环境搭建](#开发环境搭建)
 - [安装步骤](#安装步骤)
 - [开发指南](#开发指南)
+- [Git 工作流](#git-工作流)
 - [部署](#部署)
 - [许可证](#许可证)
 
@@ -87,6 +88,7 @@ juzikong-web/
 ├── tailwind.config.ts            # Tailwind 配置
 ├── next.config.js                # Next 配置
 ├── postcss.config.js             # PostCSS 配置
+├── .gitignore                    # Git忽略文件配置
 └── package.json                  # 项目依赖配置
 ```
 
@@ -139,7 +141,7 @@ juzikong-web/
 
 - Node.js >= 16.8 (推荐使用 LTS 版本)
 - npm 或 yarn 包管理器
-- Git (可选，用于版本控制)
+- Git (用于版本控制)
 
 ### 推荐开发工具
 
@@ -154,7 +156,7 @@ juzikong-web/
 
 1. 克隆项目代码：
    ```bash
-   git clone <项目地址>
+   git clone https://github.com/hezhewangdao/juji.git
    cd juji
    ```
 
@@ -210,6 +212,51 @@ npm run lint
 - 自定义 Hook 放在 `src/hooks/` 目录下
 - 工具函数放在 `src/lib/` 目录下
 - 类型定义放在 `src/types/` 目录下
+
+## Git 工作流
+
+### 分支策略
+
+我们采用 Git Flow 工作流：
+
+- `main` 分支：生产环境代码
+- `develop` 分支：开发环境代码
+- `feature/*` 分支：新功能开发分支
+- `hotfix/*` 分支：紧急修复分支
+
+### 提交规范
+
+提交信息遵循以下格式：
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+常用的 type 类型：
+- feat: 新功能
+- fix: 修复bug
+- docs: 文档更新
+- style: 代码格式调整
+- refactor: 重构
+- test: 测试相关
+- chore: 构建过程或辅助工具的变动
+
+### 推送代码
+
+```bash
+# 添加修改的文件
+git add .
+
+# 提交代码
+git commit -m "feat: 添加新功能"
+
+# 推送到远程仓库
+git push origin develop
+```
 
 ## 部署
 
