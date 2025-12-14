@@ -49,7 +49,7 @@ export const SentenceList = () => {
             <img 
               src="/images/default_avatar.png" 
               alt="用户头像" 
-              className="w-10 h-10 rounded-full object-cover"
+              className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover"
             />
             <div>
               <h3 className="font-medium">{sentence.author}</h3>
@@ -85,7 +85,7 @@ export const SentenceList = () => {
             <img 
               src="/images/default_book.png" 
               alt="相关书籍" 
-              className="w-full h-32 object-cover rounded"
+              className="w-full aspect-[2/3] object-cover rounded"
             />
           </div>
         </div>
