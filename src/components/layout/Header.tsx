@@ -3,7 +3,10 @@ export const Header = () => {
     <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
       <div className="flex justify-between items-center px-4 md:px-8 h-16">
         {/* Logo */}
-        <div className="text-xl font-serif font-bold">句子控.</div>
+        <div className="flex items-center space-x-2">
+          <img src="/images/juji_logo.png" alt="句子控Logo" className="h-8 w-8" />
+          <div className="text-xl font-serif font-bold">句子控.</div>
+        </div>
 
         {/* Desktop Nav: 仅在 md 以上显示 */}
         <nav className="hidden md:flex space-x-6 text-sm">

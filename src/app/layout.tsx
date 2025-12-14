@@ -16,7 +16,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <div className="min-h-screen bg-white bg-cover bg-center bg-no-repeat md:bg-[url('/images/desktop-bg.png')] bg-[url('/images/mobile-bg.png')]">
+          {children}
+        </div>
+      </body>
     </html>
   )
 }

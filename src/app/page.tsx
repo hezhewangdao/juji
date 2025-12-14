@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Hero } from '@/components/features/daily-quote/Hero';
 import { SentenceList } from '@/components/features/sentence-list/SentenceList';
+import { PosterThemes } from '@/components/features/share/PosterThemes';
 import { poetryService } from '@/data/poetry/poetryService';
 import type { Sentence } from '@/types';
 
@@ -57,6 +58,11 @@ export default function HomePage() {
       <section className="h-[80vh] md:min-h-[600px] md:h-auto w-full">
         <Hero />
       </section>
+      
+      {/* 分享海报主题背景 */}
+      <div className="px-4 md:container md:mx-auto py-8">
+        <PosterThemes />
+      </div>
       
       {/* 
         内容区域：
