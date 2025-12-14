@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>句子控 - 捕捉文字的共鸣</title>
+    
+    <!-- 1. 引入 Tailwind CSS (快速样式库) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. 引入 Google Fonts (思源宋体 Noto Serif SC) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- 3. 自定义配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Noto Serif SC"', 'serif'], // 强制使用宋体
+                    },
+                    colors: {
+                        paper: '#f6f4f0', // 纸张背景色
+                        ink: '#2c2c2c',   // 墨水色
+                        accent: '#c0392b' // 印章红
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #f6f4f0; color: #2c2c2c; }
+        /* 隐藏滚动条但保留功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* 卡片悬浮动画 */
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body class="font-serif antialiased min-h-screen flex flex-col">
+
+    <!-- 顶部导航 -->
+    <nav class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto w-full">
+        <div class="text-2xl font-bold tracking-widest border-2 border-ink px-2 py-1">句子.</div>
+        <div class="space-x-6 text-sm text-gray-600 hidden md:block">
+            <a href="#" class="hover:text-ink transition">发现</a>
+            <a href="#" class="hover:text-ink transition">分类</a>
+            <a href="#" class="hover:text-ink transition">作者</a>
+        </div>
+        <button class="bg-ink text-white px-5 py-2 text-sm hover:bg-gray-800 transition rounded-sm">
+            + 分享句子
+        </button>
+    </nav>
+
+    <!-- 首页 Hero 区域 (每日一句 + 环境信息) -->
+    <header class="flex-1 flex flex-col justify-center items-center px-4 py-20 relative text-center">
+        
+        <!-- 装饰性引言符号 -->
+        <span class="text-6xl text-gray-200 absolute top-10 left-10 md:left-1/4 select-none">“</span>
+
+        <!-- 核心句子展示区 -->
+        <div id="hero-quote-container" class="max-w-3xl z-10 animate-fade-in-up">
+            <h1 id="hero-content" class="text-3xl md:text-5xl leading-relaxed font-bold text-ink mb-8 cursor-pointer select-none" onclick="refreshHero()">
+                Loading...
+            </h1>
+            <div class="flex flex-col items-center space-y-2 text-gray-500">
+                <p class="text-lg">—— <span id="hero-author"></span></p>
+                <p class="text-sm italic opacity-75">《<span id="hero-source"></span>》</p>
+            </div>
+        </div>
+
+        <!-- 刷新按钮 -->
+        <button onclick="refreshHero()" class="mt-12 text-gray-400 hover:text-ink transition hover:rotate-180 duration-500" title="换一句">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+        </button>
+
+        <!-- 底部环境状态栏 (模拟 IP + 天气) -->
+        <div class="absolute bottom-8 text-xs md:text-sm text-gray-400 font-sans flex items-center space-x-3 tracking-wide">
+            <span id="user-location">定位中...</span>
+            <span class="w-px h-3 bg-gray-300"></span>
+            <span id="weather-info">获取天气...</span>
+            <span class="w-px h-3 bg-gray-300"></span>
+            <span id="current-date"></span>
+        </div>
+    </header>
+
+    <!-- 内容流展示 (瀑布流布局模拟) -->
+    <main class="max-w-7xl mx-auto w-full px-4 py-12">
+        <div class="flex justify-between items-end mb-8 border-b border-gray-200 pb-4">
+            <h2 class="text-2xl font-bold">最新收录</h2>
+            <div class="flex space-x-4 text-sm text-gray-500 font-sans">
+                <button class="text-ink font-bold border-b border-ink">全部</button>
+                <button class="hover:text-ink">影视</button>
+                <button class="hover:text-ink">书籍</button>
+                <button class="hover:text-ink">原创</button>
+            </div>
+        </div>
+
+        <!-- 句子卡片网格 -->
+        <div id="card-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 卡片将通过 JS 动态插入 -->
+        </div>
+    </main>
+
+    <footer class="text-center py-10 text-gray-400 text-sm border-t border-gray-200 mt-10">
+        <p>&copy; 2023 Juzikong Demo. Designed for Logic & Beauty.</p>
+    </footer>
+
+    <!-- 4. JavaScript 逻辑 -->
+    <script>
+        // --- 模拟数据库数据 ---
+        const dbSentences = [
+            { id: 1, content: "人的一切痛苦，本质上都是对自己无能的愤怒。", author: "王小波", source: "沉默的大多数", type: "official", uploader: "Admin" },
+            { id: 2, content: "天气不好的时候，我只能在潜意识里痛哭。", author: "村上春树", source: "且听风吟", type: "official", uploader: "Admin" },
+            { id: 3, content: "每一个不曾起舞的日子，都是对生命的辜负。", author: "尼采", source: "查拉图斯特拉如是说", type: "official", uploader: "Admin" },
+            { id: 4, content: "今天我在贩卖机买了一瓶可乐，它掉下来的时候，我好像听见它在说：我不快乐。", author: "佚名", source: "网络", type: "ugc", uploader: "想吃薯条" },
+            { id: 5, content: "死亡不是失去生命，而是走出了时间。", author: "余华", source: "在细雨中呼喊", type: "official", uploader: "Admin" },
+            { id: 6, content: "我们 spending 大量的时间在试图向别人解释我们是谁，却忘了直接做我们自己。", author: "网友原创", source: "无", type: "ugc", uploader: "CodeMaster" },
+            { id: 7, content: "满地都是六便士，他却抬头看见了月亮。", author: "毛姆", source: "月亮与六便士", type: "official", uploader: "Admin" },
+        ];
+
+        // --- 核心功能 1: 首页随机句子 ---
+        function refreshHero() {
+            const randomIdx = Math.floor(Math.random() * dbSentences.length);
+            const data = dbSentences[randomIdx];
+            
+            // 简单的淡入淡出逻辑
+            const container = document.getElementById('hero-quote-container');
+            container.style.opacity = '0';
+            
+            setTimeout(() => {
+                document.getElementById('hero-content').innerText = data.content;
+                document.getElementById('hero-author').innerText = data.author;
+                document.getElementById('hero-source').innerText = data.source;
+                container.style.opacity = '1';
+                container.style.transition = 'opacity 0.5s ease';
+            }, 300);
+        }
+
+        // --- 核心功能 2: 环境信息 (IP + 天气 + 时间) ---
+        function initEnvironment() {
+            // 时间
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+            document.getElementById('current-date').innerText = dateStr;
+
+            // 模拟根据 IP 获取地理位置 (实际开发需调用高德/百度 API)
+            // 这里我们根据当前时间模拟一个状态
+            const hour = now.getHours();
+            let greeting = hour < 12 ? "上午好" : (hour < 18 ? "下午好" : "晚上好");
+            let city = "上海"; // 模拟定位
+            
+            document.getElementById('user-location').innerText = `${greeting}，${city}`;
+
+            // 模拟天气 (实际开发需调用 QWeather API)
+            const weathers = ["☁️ 多云 24°C", "🌧️ 小雨 19°C", "☀️ 晴朗 28°C"];
+            const randomWeather = weathers[Math.floor(Math.random() * weathers.length)];
+            document.getElementById('weather-info').innerText = randomWeather;
+        }
+
+        // --- 核心功能 3: 渲染卡片列表 ---
+        function renderCards() {
+            const grid = document.getElementById('card-grid');
+            let html = '';
+
+            dbSentences.forEach(item => {
+                // 区分官方和用户上传的样式
+                const badge = item.type === 'official' 
+                    ? `<span class="text-xs bg-ink text-white px-2 py-0.5 rounded-sm">收录</span>`
+                    : `<span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-sm">用户</span>`;
+                
+                const metaInfo = item.type === 'ugc'
+                    ? `<span class="text-xs text-gray-400">@${item.uploader} 分享</span>`
+                    : `<span class="text-xs text-gray-400">经典</span>`;
+
+                html += `
+                <div class="bg-white p-6 md:p-8 rounded-sm shadow-sm hover:shadow-lg card-hover cursor-pointer border border-transparent hover:border-gray-100 flex flex-col justify-between h-48 md:h-56">
+                    <div class="text-lg md:text-xl font-medium text-gray-800 leading-relaxed overflow-hidden">
+                        “${item.content}”
+                    </div>
+                    <div class="mt-4 flex justify-between items-end border-t border-gray-100 pt-4">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-gray-600">${item.author}</span>
+                            <span class="text-xs text-gray-400 italic">《${item.source}》</span>
+                        </div>
+                        <div class="flex flex-col items-end space-y-1">
+                            ${badge}
+                            ${metaInfo}
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        // --- 初始化 ---
+        window.onload = function() {
+            refreshHero();
+            initEnvironment();
+            renderCards();
+        };
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+这是一个针对**多端适配（PC + H5 Mobile）**的句子分享网站全案开发设计。方案核心采用 "Mobile First"（移动端优先） 的设计策略，配合 Tailwind CSS 的响应式断点系统，实现一套代码兼容多端。
+1. 核心适配策略 (Responsive Strategy)
+布局逻辑：
+Mobile (Default)：单栏布局，垂直流，隐藏复杂Hover特效，强调触摸交互，底部导航栏 (Bottom Bar) 或 汉堡菜单。
+PC (md/lg Breakpoints)：多栏布局 (左中右结构)，网格展示，启用 Hover 动效，顶部完整导航栏。
+交互差异：
+Touch vs Click：针对 H5 优化点击热区（min 44px），针对 PC 优化鼠标悬停提示。
+字体排版：使用 clamp() 动态字体大小，或通过 Tailwind 预设（如 text-base md:text-lg）自动调整阅读字号。
+2. 项目目录架构 (Project Structure)
+基于 Next.js App Router，增加了专门用于处理响应式逻辑的 Hooks 和组件分类。
+code
+Text
+juzikong-web/
+├── public/                       # 静态资源
+│   ├── images/
+│   │   ├── desktop-bg.jpg        # PC端高清大图
+│   │   └── mobile-bg.jpg         # 移动端竖屏裁切图
+│   └── manifest.json             # PWA 配置 (让H5体验更像原生App)
+│
+├── src/
+│   ├── app/                      # [路由层]
+│   │   ├── layout.tsx            # 全局布局 (注入 Viewport meta, 字体)
+│   │   ├── page.tsx              # 首页 (自适应 Hero 组件 + 瀑布流)
+│   │   ├── (routes)/
+│   │   │   ├── sentence/[id]/    # 详情页
+│   │   │   └── user/             # 用户中心
+│   │   └── globals.css           # 全局样式 & 自定义媒体查询变量
+│   │
+│   ├── components/               # [组件层]
+│   │   ├── common/               # 通用原子组件 (按钮, 输入框)
+│   │   │   ├── ResponsiveImg.tsx # 封装 next/image，自动切换尺寸
+│   │   │   └── Container.tsx     # 智能容器 (控制 max-width 和 padding)
+│   │   │
+│   │   ├── layout/               # 布局组件
+│   │   │   ├── Header.tsx        # 智能导航 (PC显示全量，手机只显Logo)
+│   │   │   ├── MobileMenu.tsx    # 手机端侧滑/汉堡菜单
+│   │   │   ├── BottomNav.tsx     # [H5特有] 底部App式导航栏
+│   │   │   └── Footer.tsx        # 页脚
+│   │   │
+│   │   └── features/             # 业务组件
+│   │       ├── daily-quote/      # 每日一句模块
+│   │       │   ├── Hero.tsx      # 主容器 (Flex/Grid 切换)
+│   │       │   └── Weather.tsx   # 天气 (手机简略版/PC详细版)
+│   │       │
+│   │       └── sentence-list/    # 列表模块
+│   │           ├── Masonry.tsx   # 瀑布流布局 (Masonry Layout)
+│   │           └── Card.tsx      # 响应式卡片 (不同端间距/字号不同)
+│   │
+│   ├── hooks/                    # [逻辑层]
+│   │   ├── use-media-query.ts    # JS级媒体查询 (处理无法用CSS解决的渲染逻辑)
+│   │   └── use-scroll-lock.ts    # 打开手机菜单时锁定背景滚动
+│   │
+│   ├── lib/                      # [基础配置]
+│   │   └── utils.ts              # cn() 类名合并工具
+│   │
+│   └── types/                    # [类型定义]
+│       └── index.ts
+│
+├── tailwind.config.ts            # Tailwind 配置 (扩展断点)
+├── next.config.js                # Next 配置
+└── package.json
+3. 关键文件代码结构示例
+A. tailwind.config.ts (断点配置)
+无需过度自定义，使用默认即可，但需明确设计规范：
+sm: 640px (大屏手机/平板竖屏)
+md: 768px (平板横屏/iPad) -> PC 布局的起始点
+lg: 1024px (笔记本)
+xl: 1280px (桌面显示器)
+B. src/app/page.tsx (响应式布局入口)
+code
+Tsx
+import { Hero } from '@/components/features/daily-quote/Hero';
+import { SentenceList } from '@/components/features/sentence-list/SentenceList';
+
+export default function HomePage() {
+  return (
+    <main className="min-h-screen bg-paper pb-20 md:pb-0">
+      {/* 
+        Hero区域：
+        - 移动端：h-screen (全屏沉浸)
+        - PC端：min-h-[600px] (高度适中，留出下方内容)
+      */}
+      <section className="h-[80vh] md:min-h-[600px] md:h-auto w-full">
+        <Hero />
+      </section>
+      
+      {/* 
+        内容区域：
+        - 移动端：px-4 (小边距)
+        - PC端：container mx-auto (居中且有最大宽度)
+      */}
+      <div className="px-4 md:container md:mx-auto py-8 md:py-16">
+        <SentenceList />
+      </div>
+    </main>
+  );
+}
+C. src/components/common/Container.tsx (智能容器)
+用于统一管理两侧留白，避免在每个页面重复写 padding。
+code
+Tsx
+export const Container = ({ children, className }: { children: React.ReactNode, className?: string }) => {
+  return (
+    // 移动端左右 padding-4，PC端 padding-8 且最大宽度居中
+    <div className={`w-full px-4 md:px-8 max-w-7xl mx-auto ${className}`}>
+      {children}
+    </div>
+  );
+};
+D. src/components/layout/Header.tsx (自适应导航)
+code
+Tsx
+export const Header = () => {
+  return (
+    <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+      <div className="flex justify-between items-center px-4 md:px-8 h-16">
+        {/* Logo */}
+        <div className="text-xl font-serif font-bold">句子控.</div>
+
+        {/* Desktop Nav: 仅在 md 以上显示 */}
+        <nav className="hidden md:flex space-x-6 text-sm">
+          <a href="/explore">发现</a>
+          <a href="/category">分类</a>
+        </nav>
+
+        {/* Mobile Nav Trigger: 仅在 md 以下显示 */}
+        <button className="md:hidden p-2">
+           {/* 汉堡图标 Icon */}
+           <span className="sr-only">菜单</span>
+        </button>
+
+        {/* Desktop Action */}
+        <button className="hidden md:block bg-black text-white px-4 py-2 rounded-sm text-sm">
+          分享句子
+        </button>
+      </div>
+    </header>
+  );
+};
+E. src/components/layout/BottomNav.tsx (H5 专属底部导航)
+这是移动端体验的关键，PC端隐藏。
+code
+Tsx
+'use client';
+// 仅在移动端显示，固定在底部
+export const BottomNav = () => {
+  return (
+    <nav className="md:hidden fixed bottom-0 w-full h-16 bg-white border-t border-gray-200 flex justify-around items-center z-50">
+       <a href="/" className="flex flex-col items-center text-xs">
+         <span>首页</span>
+       </a>
+       <a href="/share" className="flex flex-col items-center">
+         <div className="bg-black text-white p-3 rounded-full -mt-6 shadow-lg">
+           <span>+</span>
+         </div>
+       </a>
+       <a href="/me" className="flex flex-col items-center text-xs">
+         <span>我的</span>
+       </a>
+    </nav>
+  );
+};
+4. 总结：开发优先级
+Stage 1 (Setup): 初始化 Next.js + Tailwind，配置好 layout.tsx，确保 viewport meta 标签正确。
+Stage 2 (Components): 开发原子组件（Button, Card），优先写好 Mobile 的样式，再加 md: 前缀写 PC 样式。
+Stage 3 (Layout):
+实现 PC 端 Header。
+实现 Mobile 端 BottomNav (通过 md:hidden 控制显示)。
+Stage 4 (Logic): 接入 IP 和天气 API，确保 API 请求在服务端组件完成，减少客户端 JS 体积。

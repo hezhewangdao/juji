@@ -1,0 +1,46 @@
+# 句子控 (JuziKong) 项目依赖说明
+# 注意：本项目是Node.js项目，实际依赖在package.json中定义
+# 此文件仅为开发环境说明
+
+## 系统要求
+Node.js >= 16.8 (推荐使用 LTS 版本)
+npm 或 yarn 包管理器
+
+## 开发环境依赖 (package.json)
+# 实际安装请使用: npm install
+
+## 生产依赖
+next: latest
+react: latest
+react-dom: latest
+
+## 开发依赖
+typescript: latest
+@types/node: latest
+@types/react: latest
+@types/react-dom: latest
+tailwindcss: latest
+autoprefixer: latest
+postcss: latest
+
+## 开发工具推荐
+ES7+ React/Redux/React-Native snippets (VS Code 插件)
+Prettier - Code formatter (VS Code 插件)
+Tailwind CSS IntelliSense (VS Code 插件)
+TypeScript Importer (VS Code 插件)
+
+## 开发命令
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 启动生产服务器
+npm start
+
+# 运行代码检查
+npm run lint
